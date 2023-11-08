@@ -343,7 +343,7 @@ func testAccCheckAivenServiceKafkaAttributes(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccKafkaResourceUserConfigKafkaNullFieldsOnly(project, prefix string) string {
+func testAccKafkaResourceUserConfigKafkaOmitsNullFields(project, prefix string) string {
 	return fmt.Sprintf(`
 resource "aiven_kafka" "kafka" {
   project                 = "%s"
@@ -366,7 +366,7 @@ resource "aiven_kafka" "kafka" {
 `, project, prefix)
 }
 
-func TestAccAiven_kafka_userconfig_kafka_null_fields_only(t *testing.T) {
+func TestAccAiven_kafka_user_config_kafka_omits_null_fields(t *testing.T) {
 	project := os.Getenv("AIVEN_PROJECT_NAME")
 	prefix := "test-tf-acc-" + acctest.RandString(7)
 	resourceName := "aiven_kafka.kafka"
@@ -376,13 +376,11 @@ func TestAccAiven_kafka_userconfig_kafka_null_fields_only(t *testing.T) {
 		CheckDestroy:             acc.TestAccCheckAivenServiceResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKafkaResourceUserConfigKafkaNullFieldsOnly(project, prefix),
+				Config: testAccKafkaResourceUserConfigKafkaOmitsNullFields(project, prefix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "state", "RUNNING"),
 					resource.TestCheckResourceAttr(resourceName, "kafka_user_config.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "kafka_user_config.0.kafka.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "kafka_user_config.0.kafka.0.group_max_session_timeout_ms", "0"),
-					resource.TestCheckResourceAttr(resourceName, "kafka_user_config.0.kafka.0.log_retention_bytes", "0"),
+					resource.TestCheckResourceAttr(resourceName, "kafka_user_config.0.kafka.#", "0"),
 				),
 			},
 		},
